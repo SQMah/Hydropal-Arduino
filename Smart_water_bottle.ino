@@ -22,7 +22,7 @@ void setup()
 }
 
 
-void loop ()
+void loop () //Add repeated functions here
 {
    currentTime = millis();
    // Every second, calculate and print ml/sec
