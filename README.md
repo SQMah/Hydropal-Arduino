@@ -16,9 +16,9 @@ This is the Arduino code for the HydroPal smart water bottle JA company. The cod
 - [x] LED indicators for total volume consumed, for 5 LEDs
 
 ## To-do
-- [] Reset total counter midnight every day
-- [] Indicate total consumption and/or percentage of goal achieved everyday
-- [] Simple serial calibration for more accurate readings
+- [ ] Reset total counter midnight every day
+- [ ] Indicate total consumption and/or percentage of goal achieved everyday
+- [ ] Simple serial calibration for more accurate readings
 
 ## Changelog:
 
