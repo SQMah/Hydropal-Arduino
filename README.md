@@ -26,6 +26,6 @@ This is the Arduino code for the HydroPal smart water bottle JA company. The cod
 - LEDs can indicate how much has been consumed, one for each 1 L
 - LEDs in progress of being filled up blink
 
-## Alpha 1.0
+### Alpha 1.0
 - Initial release
 - Measures flowrate in ml/sec and adds up to total water consumed
