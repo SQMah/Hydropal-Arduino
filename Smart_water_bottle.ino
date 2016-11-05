@@ -46,19 +46,21 @@ void loop ()
         Serial.print( total_water ); // Total water in ml
         Serial.println(" ml consumed");
       }
-
+      
+      // add command if there is a change in total water, shine lights
       // Set up number of non-blinking LEDs that are on
-      if (total_water < 1000) {
-        ledsOn = 0;
-      } else if (total_water < 2000) {
+      if (total_water <= 400) {
+        ledsOn = 0; // also is this supposed to be = or == they have different meanings - == means equal, = means assignment operator
+         // add command LEDs turn on for 5 secs or something, same for below
+      } else if (400 < total_water <= 800) { // guys should it be 400 < x < 800 instead?, same with below
         ledsOn = 1;
-      } else if (total_water < 3000) {
+      } else if (800 < total_water <= 1200) {
         ledsOn = 2;
-      } else if (total_water < 4000) {
+      } else if (1200 total_water <= 1600) {
         ledsOn = 3;
-      } else if (total_water < 5000) {
+      } else if (1600 total_water <= 2000) {
         ledsOn = 4;
-      } else {    //Only fires when total_water is above 5000
+      } else {    //Only fires when total_water is above 2000 - healthy water intake (changed from 5000)
         ledsOn = 5;
       }
 
@@ -81,5 +83,7 @@ void loop ()
           digitalWrite(ledPins[i], HIGH);
         } // No blinking pins, so no final line for variable state LED
       }
+      
+      // add command if there is a change in day, total_water == 0
    }
 }
