@@ -26,6 +26,9 @@ void setup()
    sei(); // Enable interrupts
    currentTime = millis();
    cloopTime = currentTime;
+   for (int i = 0; i < 5; i++) {
+    pinMode(ledPins[i], OUTPUT);
+   }
 }
 void loop ()
 {
