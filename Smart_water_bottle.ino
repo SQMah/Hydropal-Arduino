@@ -76,7 +76,6 @@ void loop ()
       if (ledsOn < 5) {
         for (int i = 0; i < ledsOn; i++) { 
           digitalWrite(ledPins[i], HIGH);
-          i++; // Increments counter
         }
         digitalWrite(ledPins[ledsOn], ledState); // This pin is blinking
        } else { // Fires only when ledsOn is equal to 5
