@@ -1,3 +1,6 @@
+#include <Time.h>
+#include <TimeAlarms.h>
+
 // Flowrate and water variables
 volatile int flow_frequency; // Measures flow sensor pulses
 float ml_sec; // Calculated ml/sec
@@ -19,25 +22,42 @@ void flow () // Interrupt function
 }
 void setup()
 {
+  // Flow sensor
    pinMode(flowsensor, INPUT);
    digitalWrite(flowsensor, HIGH); // Optional Internal Pull-Up
    Serial.begin(9600);
    attachInterrupt(0, flow, RISING); // Setup Interrupt
    sei(); // Enable interrupts
+
+   // Loop
    currentTime = millis();
    cloopTime = currentTime;
+
+   
+   // Set all LED pins to output.
    for (int i = 0; i < 5; i++) {
     pinMode(ledPins[i], OUTPUT);
    }
+
+   // Time
+   setTime(23,59,55,1,1,10);
+   // Create the alarms 
+   Alarm.alarmRepeat(0,0,0, waterReset);  // 12:00 am every day, reset total_water consumed
 }
 void loop ()
 {
    currentTime = millis();
+   
+    
    // Every second, calculate and print litres/hour
-   if(currentTime >= (cloopTime + 1000)) {
+   if(currentTime >= (cloopTime + 500)) {
       cloopTime = currentTime; // Updates cloopTime
+
+      // Checks for any alarms, i.e. resets total_water at 12 am
+      Alarm.delay(0);
+      
       // Pulse frequency (Hz) = 8.1, Q is flow rate in L/min.
-      ml_sec = (flow_frequency * 2.0576); // (Pulse frequency x 60) / 8.1 Q = flowrate in L/hour, therefore (Pulse frequency x 1000 / 8.1Q x 60) is flowrate in ml/sec
+      ml_sec = (flow_frequency * 1.0288); // (Pulse frequency x 60) / 8.1 Q = flowrate in L/hour, therefore (Pulse frequency x 1000 / 8.1Q x 60) is flowrate in ml/sec
       total_water = total_water + ml_sec;
       flow_frequency = 0; // Reset Counter
 
@@ -84,4 +104,9 @@ void loop ()
         } // No blinking pins, so no final line for variable state LED
       }
    }
+}
+
+// Function is called when time is 12 am
+void waterReset() {
+  total_water = 0;
 }
