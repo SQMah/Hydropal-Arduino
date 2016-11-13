@@ -20,6 +20,7 @@ This is the Arduino code for the HydroPal smart water bottle JA company. The cod
 ## To-do
 - [ ] Indicate total consumption and/or percentage of goal achieved everyday
 - [ ] Simple serial calibration for more accurate readings
+- [ ] Update correct date and time over Bluetooth
 
 ## Changelog:
 
