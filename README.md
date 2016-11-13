@@ -7,20 +7,24 @@ This is the Arduino code for the HydroPal smart water bottle JA company. The cod
 1. Download the Arduino IDE from here: https://www.arduino.cc/en/Main/Software
 2. If you are using a Mac with an Arduino with a CH34x USB chip, install the driver above
 3. Change any pin numbers as required
-4. Upload code to Arduino board, make sure the right port and model of the board is selected
+4. Install the Time and TimeAlarms libraries using the Arduino IDE
+5. Upload code to Arduino board, make sure the right port and model of the board is selected
 
 ## Current Functionality
 - [x] Checks sensor reading every second to find ml/sec passing through sensor
 - [x] Adds sensor reading to total ml of liquid consumed throughout the day
 - [x] Converts ml to L after 1 L is reached
 - [x] LED indicators for total volume consumed, for 5 LEDs
+- [x] Reset total counter midnight every day
 
 ## To-do
-- [ ] Reset total counter midnight every day
 - [ ] Indicate total consumption and/or percentage of goal achieved everyday
 - [ ] Simple serial calibration for more accurate readings
 
 ## Changelog:
+
+## Alpha 3.0
+- Water consumed is now reset every midnight
 
 ### Alpha 2.0
 - LEDs can indicate how much has been consumed, one for each 1 L
