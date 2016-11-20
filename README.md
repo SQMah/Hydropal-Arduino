@@ -13,16 +13,19 @@ This is the Arduino code for the HydroPal smart water bottle JA company. The cod
 ## Current Functionality
 - [x] Checks sensor reading every second to find ml/sec passing through sensor
 - [x] Adds sensor reading to total ml of liquid consumed throughout the day
-- [x] Converts ml to L after 1 L is reached
 - [x] LED indicators for total volume consumed, for 5 LEDs
 - [x] Reset total counter midnight every day
+- [x] Update correct date and time over Bluetooth
+- [x] Update user preferences over Bluetooth
 
 ## To-do
-- [ ] Indicate total consumption and/or percentage of goal achieved everyday
-- [ ] Simple serial calibration for more accurate readings
-- [ ] Update correct date and time over Bluetooth
+- [ ] Send multiple day data over Bluetooth
 
 ## Changelog:
+
+## Alpha 4.0
+- Data is sent to mobile device over Bluetooth
+- Data from mobile device is parsed: things such as time and user preferences are updated
 
 ## Alpha 3.0
 - Water consumed is now reset every midnight
