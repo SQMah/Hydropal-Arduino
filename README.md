@@ -7,7 +7,7 @@ This is the Arduino code for the HydroPal smart water bottle JA company. The cod
 1. Download the Arduino IDE from here: https://www.arduino.cc/en/Main/Software
 2. If you are using a Mac with an Arduino with a CH34x USB chip, install the driver above
 3. Change any pin numbers as required
-4. Install the Time and TimeAlarms libraries using the Arduino IDE
+4. Install the Time, TimeAlarms and AltSoftSerial libraries using the Arduino IDE
 5. Upload code to Arduino board, make sure the right port and model of the board is selected
 
 ## Current Functionality
