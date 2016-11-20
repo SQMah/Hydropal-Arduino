@@ -1,5 +1,17 @@
 #include <Time.h>
 #include <TimeAlarms.h>
+#include <AltSoftSerial.h>
+
+AltSoftSerial BTSerial;
+
+#define SOP '<'
+#define EOP '>'
+
+bool started = false;
+bool ended = false;
+ 
+char inData[80]; // creates an 80 character array called "inData"
+byte index; //creates a variable type=byte called "index"
 
 // Flowrate and water variables
 volatile int flow_frequency; // Measures flow sensor pulses
@@ -15,6 +27,8 @@ unsigned long cloopTime;
 int ledPins[] = {3,4,5,6,7}; // LED Pins [PIN NUMBERS UPDATE AS REQUIRED, WRITE IN ORDER]
 int ledState = LOW;
 int ledsOn = 0;
+String reminderState = "ON"; // Is LED reminder preference transmitted by phone, defaults to ON
+int reminderMinutes = 60; // Defaults to 60 minutes before reminder on LED
 
 void flow () // Interrupt function
 {
@@ -25,7 +39,8 @@ void setup()
   // Flow sensor
    pinMode(flowsensor, INPUT);
    digitalWrite(flowsensor, HIGH); // Optional Internal Pull-Up
-   Serial.begin(9600);
+   Serial.begin(115200);
+   BTSerial.begin(115200);
    attachInterrupt(0, flow, RISING); // Setup Interrupt
    sei(); // Enable interrupts
 
@@ -46,8 +61,76 @@ void setup()
 }
 void loop ()
 {
+   // Read all serial data available, as fast as possible
+  while(BTSerial.available() > 0)
+  {
+    char inChar = BTSerial.read();
+    if(inChar == SOP)
+    {
+       index = 0;
+       inData[index] = '\0';
+       started = true;
+       ended = false;
+    }
+    else if(inChar == EOP)
+    {
+       ended = true;
+       break;
+    }
+    else
+    {
+      if(index < 79)
+      {
+        inData[index] = inChar;
+        index++;
+        inData[index] = '\0';
+      }
+    }
+  }
+
+  // We are here either because all pending serial
+  // data has been read OR because an end of
+  // packet marker arrived. Which is it?
+  if(started && ended)
+  {
+    // The end of packet marker arrived. Process the packet
+
+    // Send packet of total_water consumption
+    BTSerial.print("<");
+    BTSerial.print(total_water);
+    BTSerial.print(">");
+    
+    // Find index of commas
+    String dataString = String(inData);
+    int commaIndex = dataString.indexOf(',');
+    //  Search for the next comma just after the first
+    int secondCommaIndex = dataString.indexOf(',', commaIndex+1);
+    int thirdCommaIndex = dataString.indexOf(',', secondCommaIndex+1);
+    int fourthCommaIndex = dataString.indexOf(',', thirdCommaIndex+1);
+    int fifthCommaIndex = dataString.indexOf(',', fourthCommaIndex+1);
+    int sixthCommaIndex = dataString.indexOf(',', fifthCommaIndex+1);
+    int seventhCommaIndex = dataString.indexOf(',', sixthCommaIndex+1);
+
+    // Parse data, turns time related strings into integers
+    int hoursInt = dataString.substring(0, commaIndex).toInt();
+    int minutesInt = dataString.substring(commaIndex+1, secondCommaIndex).toInt();
+    int secondsInt = dataString.substring(secondCommaIndex +1, thirdCommaIndex).toInt();
+    int daysInt = dataString.substring(thirdCommaIndex +1, fourthCommaIndex).toInt();
+    int monthsInt = dataString.substring(fourthCommaIndex +1, fifthCommaIndex).toInt();
+    int yearsInt = dataString.substring(fifthCommaIndex +1, sixthCommaIndex).toInt();
+    reminderState = dataString.substring(sixthCommaIndex +1, seventhCommaIndex);
+    reminderMinutes = dataString.substring(seventhCommaIndex+1).toInt();
+
+    // Set time based on Bluetooth data
+    setTime(hoursInt, minutesInt, secondsInt, daysInt, monthsInt, yearsInt);
+    
+    // Reset for the next packet
+    started = false;
+    ended = false;
+    index = 0;
+    inData[index] = '\0';
+  }
    currentTime = millis();
-   
     
    // Every second, calculate and print litres/hour
    if(currentTime >= (cloopTime + 500)) {
@@ -60,15 +143,6 @@ void loop ()
       ml_sec = (flow_frequency * 1.0288); // (Pulse frequency x 60) / 8.1 Q = flowrate in L/hour, therefore (Pulse frequency x 1000 / 8.1Q x 60) is flowrate in ml/sec
       total_water = total_water + ml_sec;
       flow_frequency = 0; // Reset Counter
-
-      // Converts serial output to L when over or equal 1L
-      if (total_water >= 1000) {
-        Serial.print( total_water / 1000 ); // Total water in L
-        Serial.println(" L consumed");
-      } else {
-        Serial.print( total_water ); // Total water in ml
-        Serial.println(" ml consumed");
-      }
 
       // Set up number of non-blinking LEDs that are on
       if (total_water < 1000) {
