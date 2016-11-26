@@ -26,7 +26,7 @@ int waterConsumption[ ] = {0,0,0,0};
 // Flowrate and water variables
 volatile int flow_frequency; // Measures flow sensor pulses
 float ml_sec; // Calculated ml/sec
-float total_water; // Total water consumed, in ml
+float total_water = 0.0; // Total water consumed, in ml
 unsigned char flowsensor = 2; // Sensor input [PIN NUMBER UPDATE AS REQUIRED]
 
 // Loop timers variables
@@ -76,12 +76,7 @@ void setup()
    // Set all LED pins to output.
    for (int i = 0; i < 5; i++) {
     pinMode(ledPins[i], OUTPUT);
-   }
-
-   // Time
-   setTime(8,14,55,1,1,10);
-   // Create the alarms 
-   Alarm.alarmRepeat(0,0,0, waterReset);  // 12:00 am every day, reset total_water consumed
+   }   
 }
 
 void loop ()
@@ -163,14 +158,12 @@ void loop ()
     wakeMin = dataString.substring(ninthCommaIndex+1, tenthCommaIndex).toInt();
     sleepHour = dataString.substring(tenthCommaIndex+1, eleventhCommaIndex).toInt();
     sleepMin = dataString.substring(eleventhCommaIndex+1).toInt();
-    
-    
 
     // Set time based on Bluetooth data
     setTime(hoursInt, minutesInt, secondsInt, daysInt, monthsInt, yearsInt);
-    
-    Alarm.alarmRepeat(wakeHour, wakeMin, 0, wake);
-    Alarm.alarmRepeat(sleepHour, sleepMin, 0, sleep);
+
+    // Create the alarms 
+    Alarm.alarmRepeat(0,0,0, waterReset);  // 12:00 am every day, reset total_water consumed
     
     // Reset for the next packet
     started = false;
@@ -188,10 +181,10 @@ void loop ()
       Alarm.delay(0);
       
       // Pulse frequency (Hz) = 8.1, Q is flow rate in L/min.
-      ml_sec = (flow_frequency * 1.0288); // (Pulse frequency x 60) / 8.1 Q = flowrate in L/hour, therefore (Pulse frequency x 1000 / 8.1Q x 60) is flowrate in ml/sec
+      ml_sec = (flow_frequency * 3.3); // (Pulse frequency x 60) / 5 Q = flowrate in L/hour, therefore (Pulse frequency x 1000 / 5Q x 60) is flowrate in ml/sec
       total_water = total_water + ml_sec;
       flow_frequency = 0; // Reset Counter
-
+      
       // Add total_water to waterConsumption array
       waterConsumption[3] = total_water;
 
@@ -230,8 +223,7 @@ void loop ()
       }
 
       // Pulsate reminder LED if needSync is true CHANGE AFTER DEBUG
-      if (needSync == false) {
-        Serial.print("need sync");
+      if (needSync == true) {
         float in, out;
         for (in = 0; in < 6.283; in = in + 0.001)
           {
@@ -240,24 +232,24 @@ void loop ()
           }
       } else {
         if ((hour() > wakeHour) && (hour() < sleepHour)) {
-          Serial.print("wake");
+          ledShouldOn = true;
         } else if ((hour() == wakeHour) || (hour() == sleepHour)) {
           if (hour() == wakeHour) {
             if (minute() >= wakeMin) {
-              Serial.print("wake");
+              ledShouldOn = true;
             } else if (minute() < wakeMin) {
-              Serial.print("sleep");
+              ledShouldOn = false;
             }
           }
           if (hour() == sleepHour) {
             if (minute() >= sleepMin) {
-              Serial.print("sleep");
+              ledShouldOn = false;
             } else if (minute() < sleepMin) {
-              Serial.print("wake");
+              ledShouldOn = true;
             }
           }
         } else if ((hour() > sleepHour) || (hour() < wakeHour)) {
-          Serial.print("sleep");
+          ledShouldOn = false;
         }
       }
    }
@@ -265,32 +257,15 @@ void loop ()
 
 // Function is called when time is 12 am
 void waterReset() {
-  if (needSync == true) {
+    if (needSync == true) {
     // Do nothing because time is inorrect
   } else {
-    // Shifts water consumption array
-    for (int i = 0; i < 3; i++) {
-      waterConsumption[i+1] = waterConsumption[i];
-    }
+    waterConsumption[0] = waterConsumption[1];
+    waterConsumption[1] = waterConsumption[2];
+    waterConsumption[2] = waterConsumption[3];
 
     // Reset water count for the day
     waterConsumption[3] = 0;
     total_water = 0;
-  }
-}
-
-void wake() {
-  if (needSync == true) {
-    // Do nothing because time is incorrect
-  } else {
-    ledShouldOn = true;
-  }
-}
-
-void sleep() {
-  if (needSync == true) {
-    // Do nothing because time is incorrect
-  } else {
-    ledShouldOn = false;
   }
 }
