@@ -1,7 +1,7 @@
-# HydroPal: Arduino Branch
+# Hydropal: Arduino Branch
 
 ## Description
-This is the Arduino code for the HydroPal smart water bottle JA company. The code will primarily allow the Arduino Nano board to read the ml/sec of liquids going though the nozzle of the bottle in order to measure the millitres of water that a person drinks throughout the day.
+This is the Arduino code for the Hydropal smart water bottle JA company. The code will primarily allow the Arduino Nano board to read the ml/sec of liquids going though the nozzle of the bottle in order to measure the millitres of water that a person drinks throughout the day.
 
 ## Setting up
 1. Download the Arduino IDE from here: https://www.arduino.cc/en/Main/Software
@@ -17,11 +17,20 @@ This is the Arduino code for the HydroPal smart water bottle JA company. The cod
 - [x] Reset total counter midnight every day
 - [x] Update correct date and time over Bluetooth
 - [x] Update user preferences over Bluetooth
+- [x] Send multiple day data over Bluetooth
 
 ## To-do
-- [ ] Send multiple day data over Bluetooth
+- [ ] Proper sleep wake to control LED
+- [ ] Pulsing LED to remind user to sync
+- [ ] Blinking LED to remind user to drink
+- [ ] Microcontroller sleep and wake
 
 ## Changelog:
+
+## Alpha 5.0
+- Groundwork for sleep wake times
+- Groundwork for pulsing LED
+- Multiple day data is sent and reset
 
 ## Alpha 4.0
 - Data is sent to mobile device over Bluetooth
