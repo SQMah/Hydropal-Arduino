@@ -1,3 +1,11 @@
+// Connect Bluetooth RXD to pin D9
+// Connect Bluetooth TXD to pin D8
+// PWM D10 as a result will not be usable
+// To-do:
+// - Day rollover save into array
+// - Possible fade in and out LED to signal to sync
+// - Use sleep and wake up time information to enable/disable LEDs, write to EEPROM?
+
 #include <Time.h>
 #include <TimeAlarms.h>
 #include <AltSoftSerial.h>
@@ -13,10 +21,12 @@ bool ended = false;
 char inData[80]; // creates an 80 character array called "inData"
 byte index; //creates a variable type=byte called "index"
 
+int waterConsumption[ ] = {0,0,0,0};
+
 // Flowrate and water variables
 volatile int flow_frequency; // Measures flow sensor pulses
 float ml_sec; // Calculated ml/sec
-float total_water; // Total water consumed, in ml
+float total_water = 0.0; // Total water consumed, in ml
 unsigned char flowsensor = 2; // Sensor input [PIN NUMBER UPDATE AS REQUIRED]
 
 // Loop timers variables
@@ -27,8 +37,22 @@ unsigned long cloopTime;
 int ledPins[] = {3,4,5,6,7}; // LED Pins [PIN NUMBERS UPDATE AS REQUIRED, WRITE IN ORDER]
 int ledState = LOW;
 int ledsOn = 0;
+
+int reminderLed = 11; // Pin number of reminderLed
+
 String reminderState = "ON"; // Is LED reminder preference transmitted by phone, defaults to ON
 int reminderMinutes = 60; // Defaults to 60 minutes before reminder on LED
+
+bool ledShouldOn = true;
+
+// Alarm
+int wakeHour = 8;
+int wakeMin = 15;
+int sleepHour = 20;
+int sleepMin = 50;
+
+// Checks if bottle is synced
+bool needSync = true;
 
 void flow () // Interrupt function
 {
@@ -52,13 +76,9 @@ void setup()
    // Set all LED pins to output.
    for (int i = 0; i < 5; i++) {
     pinMode(ledPins[i], OUTPUT);
-   }
-
-   // Time
-   setTime(23,59,55,1,1,10);
-   // Create the alarms 
-   Alarm.alarmRepeat(0,0,0, waterReset);  // 12:00 am every day, reset total_water consumed
+   }   
 }
+
 void loop ()
 {
    // Read all serial data available, as fast as possible
@@ -95,10 +115,19 @@ void loop ()
   {
     // The end of packet marker arrived. Process the packet
 
-    // Send packet of total_water consumption
+    // Send packet of water consumption
     BTSerial.print("<");
-    BTSerial.print(total_water);
+    BTSerial.print(waterConsumption[0]);
+    BTSerial.print(",");
+    BTSerial.print(waterConsumption[1]);
+    BTSerial.print(",");
+    BTSerial.print(waterConsumption[2]);
+    BTSerial.print(",");
+    BTSerial.print(waterConsumption[3]);
     BTSerial.print(">");
+
+    // Set needSync to false
+    needSync = false;
     
     // Find index of commas
     String dataString = String(inData);
@@ -110,6 +139,11 @@ void loop ()
     int fifthCommaIndex = dataString.indexOf(',', fourthCommaIndex+1);
     int sixthCommaIndex = dataString.indexOf(',', fifthCommaIndex+1);
     int seventhCommaIndex = dataString.indexOf(',', sixthCommaIndex+1);
+    int eigthCommaIndex = dataString.indexOf(',', seventhCommaIndex+1);
+    int ninthCommaIndex = dataString.indexOf(',', eigthCommaIndex+1);
+    int tenthCommaIndex = dataString.indexOf(',', ninthCommaIndex+1);
+    int eleventhCommaIndex = dataString.indexOf(',', tenthCommaIndex+1);
+    
 
     // Parse data, turns time related strings into integers
     int hoursInt = dataString.substring(0, commaIndex).toInt();
@@ -119,10 +153,17 @@ void loop ()
     int monthsInt = dataString.substring(fourthCommaIndex +1, fifthCommaIndex).toInt();
     int yearsInt = dataString.substring(fifthCommaIndex +1, sixthCommaIndex).toInt();
     reminderState = dataString.substring(sixthCommaIndex +1, seventhCommaIndex);
-    reminderMinutes = dataString.substring(seventhCommaIndex+1).toInt();
+    reminderMinutes = dataString.substring(seventhCommaIndex+1, eigthCommaIndex).toInt();
+    wakeHour = dataString.substring(eigthCommaIndex+1, ninthCommaIndex).toInt();
+    wakeMin = dataString.substring(ninthCommaIndex+1, tenthCommaIndex).toInt();
+    sleepHour = dataString.substring(tenthCommaIndex+1, eleventhCommaIndex).toInt();
+    sleepMin = dataString.substring(eleventhCommaIndex+1).toInt();
 
     // Set time based on Bluetooth data
     setTime(hoursInt, minutesInt, secondsInt, daysInt, monthsInt, yearsInt);
+
+    // Create the alarms 
+    Alarm.alarmRepeat(0,0,0, waterReset);  // 12:00 am every day, reset total_water consumed
     
     // Reset for the next packet
     started = false;
@@ -140,9 +181,12 @@ void loop ()
       Alarm.delay(0);
       
       // Pulse frequency (Hz) = 8.1, Q is flow rate in L/min.
-      ml_sec = (flow_frequency * 1.0288); // (Pulse frequency x 60) / 8.1 Q = flowrate in L/hour, therefore (Pulse frequency x 1000 / 8.1Q x 60) is flowrate in ml/sec
+      ml_sec = (flow_frequency * 3.3); // (Pulse frequency x 60) / 5 Q = flowrate in L/hour, therefore (Pulse frequency x 1000 / 5Q x 60) is flowrate in ml/sec
       total_water = total_water + ml_sec;
       flow_frequency = 0; // Reset Counter
+      
+      // Add total_water to waterConsumption array
+      waterConsumption[3] = total_water;
 
       // Set up number of non-blinking LEDs that are on
       if (total_water < 1000) {
@@ -177,10 +221,51 @@ void loop ()
           digitalWrite(ledPins[i], HIGH);
         } // No blinking pins, so no final line for variable state LED
       }
+
+      // Pulsate reminder LED if needSync is true CHANGE AFTER DEBUG
+      if (needSync == true) {
+        float in, out;
+        for (in = 0; in < 6.283; in = in + 0.001)
+          {
+            out = sin(in) * 127.5 + 127.5;
+            analogWrite(reminderLed,out);
+          }
+      } else {
+        if ((hour() > wakeHour) && (hour() < sleepHour)) {
+          ledShouldOn = true;
+        } else if ((hour() == wakeHour) || (hour() == sleepHour)) {
+          if (hour() == wakeHour) {
+            if (minute() >= wakeMin) {
+              ledShouldOn = true;
+            } else if (minute() < wakeMin) {
+              ledShouldOn = false;
+            }
+          }
+          if (hour() == sleepHour) {
+            if (minute() >= sleepMin) {
+              ledShouldOn = false;
+            } else if (minute() < sleepMin) {
+              ledShouldOn = true;
+            }
+          }
+        } else if ((hour() > sleepHour) || (hour() < wakeHour)) {
+          ledShouldOn = false;
+        }
+      }
    }
 }
 
 // Function is called when time is 12 am
 void waterReset() {
-  total_water = 0;
+    if (needSync == true) {
+    // Do nothing because time is inorrect
+  } else {
+    waterConsumption[0] = waterConsumption[1];
+    waterConsumption[1] = waterConsumption[2];
+    waterConsumption[2] = waterConsumption[3];
+
+    // Reset water count for the day
+    waterConsumption[3] = 0;
+    total_water = 0;
+  }
 }
