@@ -5,6 +5,7 @@
 #include <Time.h>
 #include <TimeAlarms.h>
 #include <AltSoftSerial.h>
+#include <LowPower.h>
 
 AltSoftSerial BTSerial;
 
@@ -17,6 +18,7 @@ bool ended = false;
 char inData[100]; // creates an 80 character array called "inData"
 byte index; //creates a variable type=byte called "index"
 
+// Index 0 is 3 days ago etc. Index 3 is today
 int waterConsumption[ ] = {0,0,0,0};
 long lastDrink;
 
@@ -45,10 +47,14 @@ int sleepMin = 0;
 // Checks if bottle is synced
 bool needSync = true;
 
-void flow () // Interrupt function
+// Checks if bottle should log data
+bool onOffIntake = true;
+
+void flow () // Interrupt function for flow rate sensor
 {
    flow_frequency++;
 }
+
 void setup()
 {
   // Flow sensor
@@ -121,6 +127,7 @@ void loop ()
     int thirteenthCommaIndex = dataString.indexOf(',', twelfthCommaIndex+1);
     int fourteenthCommaIndex = dataString.indexOf(',', thirteenthCommaIndex+1);
     int fifteenthCommaIndex = dataString.indexOf(',', fourteenthCommaIndex+1);
+    int sixteenthCommaIndex = dataString.indexOf(',', fifteenthCommaIndex+1);
     
 
     // Parse data, turns time related strings into integers
@@ -139,8 +146,8 @@ void loop ()
     int todayVolume = dataString.substring(twelfthCommaIndex+1, thirteenthCommaIndex).toInt();
     int yesterdayVolume = dataString.substring(thirteenthCommaIndex+1, fourteenthCommaIndex).toInt();
     int twoDayVolume = dataString.substring(fourteenthCommaIndex+1, fifteenthCommaIndex).toInt();
-    int threeDayVolume = dataString.substring(fifteenthCommaIndex+1).toInt();
-
+    int threeDayVolume = dataString.substring(fifteenthCommaIndex+1, sixteenthCommaIndex).toInt();
+    onOffIntake = dataString.substring(sixteenthCommaIndex+1);
     
 
     // Checks if volume data received from device is larger than the one on the board, if it is so, then the volume on the board is updated
@@ -204,7 +211,13 @@ void loop ()
         // Pulse frequency (Hz) = 8.1, Q is flow rate in L/min.
         ml_sec = (flow_frequency * 3.3); // (Pulse frequency x 60) / 5 Q = flowrate in L/hour, therefore (Pulse frequency x 1000 / 5Q x 60) is flowrate in ml/sec
         // Add ml_sec to consumption of the day
-        waterConsumption[3] = waterConsumption[3] + ml_sec;
+        if (onOffIntake == "ON") {
+          // Track intake
+          waterConsumption[3] = waterConsumption[3] + ml_sec;
+        } else {
+          // Don't track
+        }
+        
         flow_frequency = 0; // Reset Counter
   
         //Check if any water was consumed
