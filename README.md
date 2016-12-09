@@ -18,14 +18,18 @@ This is the Arduino code for the Hydropal smart water bottle JA company. The cod
 - [x] Update correct date and time over Bluetooth
 - [x] Update user preferences over Bluetooth
 - [x] Send multiple day data over Bluetooth
+- [X] Pulsing LED to remind user to sync
+- [X] Blinking LED to remind user to drink
 
 ## To-do
 - [ ] Proper sleep wake to control LED
-- [ ] Pulsing LED to remind user to sync
-- [ ] Blinking LED to remind user to drink
-- [ ] Microcontroller sleep and wake
 
 ## Changelog:
+
+## Alpha 6.0
+- Arduino checks for the largest value and sends it back to the device
+- LED pulses when need sync
+- LED blinks when need drink
 
 ## Alpha 5.0
 - Groundwork for sleep wake times
