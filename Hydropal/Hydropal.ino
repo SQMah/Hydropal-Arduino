@@ -48,7 +48,7 @@ int sleepMin = 0;
 bool needSync = true;
 
 // Checks if bottle should log data
-bool onOffIntake = true;
+String onOffIntake = "ON";
 
 void flow () // Interrupt function for flow rate sensor
 {
