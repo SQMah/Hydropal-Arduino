@@ -13,7 +13,8 @@
 //    AT (reply should be OK)
 //    AT+NAMEHydropal-XXXX (with XXXX being the serial number)
 //    AT+BAUD4 (should set baud rate to 115200)
- 
+// MAKE SURE TO SET SERIAL BAUD RATE TO 9600
+
 #include <AltSoftSerial.h>
 AltSoftSerial BTSerial; 
 

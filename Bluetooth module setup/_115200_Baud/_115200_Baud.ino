@@ -12,7 +12,8 @@
 //  Commands to write in order - REMEMBER TO TURN ON CR AND NL IN THE SERIAL MONITOR
 //    AT (reply should be OK)
 //    BT is working at this point
- 
+//  MAKE SURE TO SET SERIAL MONITOR TO 115200 BAUD
+
 #include <AltSoftSerial.h>
 AltSoftSerial BTSerial; 
 
