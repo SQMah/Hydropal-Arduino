@@ -28,12 +28,12 @@ boolean NL = true;
  
 void setup() 
 {
-    Serial.begin(9600);
+    Serial.begin(115200);
     Serial.print("Sketch:   ");   Serial.println(__FILE__);
     Serial.print("Uploaded: ");   Serial.println(__DATE__);
     Serial.println(" ");
  
-    BTSerial.begin(9600);  
+    BTSerial.begin(115200);  
     Serial.println("BTserial started at 115200");
     Serial.println("");
 }
