@@ -254,7 +254,7 @@ void loop ()
         }
 
         // Check if user has not consumped water for more seconds than the reminderMinutes
-        if (((now()-lastDrink) >= (reminderMinutes * 60)) && ledShouldOn == true) {
+        if (((now()-lastDrink) >= (reminderMinutes * 60)) && ledShouldOn == true && reminderState == "ON") {
           digitalWrite(reminderLed, ledState);
         } else {
           //Sleep time
