@@ -16,9 +16,10 @@ Detailed instructions can be found here: https://github.com/Hydropal/Hydropal-Ar
 - [x] Send multiple day data over Bluetooth
 - [X] Pulsing LED to remind user to sync
 - [X] Blinking LED to remind user to drink
+- [X] Proper sleep wake to control LED
 
 ## To-do
-- [ ] Proper sleep wake to control LED
+🎉 Nothing at the moment!
 
 ## Changelog:
 
