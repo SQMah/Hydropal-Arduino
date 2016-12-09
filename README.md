@@ -3,12 +3,8 @@
 ## Description
 This is the Arduino code for the Hydropal smart water bottle JA company. The code will primarily allow the Arduino Nano board to read the ml/sec of liquids going though the nozzle of the bottle in order to measure the millitres of water that a person drinks throughout the day.
 
-## Setting up
-1. Download the Arduino IDE from here: https://www.arduino.cc/en/Main/Software
-2. If you are using a Mac with an Arduino with a CH34x USB chip, install the driver above
-3. Change any pin numbers as required
-4. Install the Time, TimeAlarms and AltSoftSerial libraries using the Arduino IDE
-5. Upload code to Arduino board, make sure the right port and model of the board is selected
+## Usage
+Detailed instructions can be found here: https://github.com/Hydropal/Hydropal-Arduino/wiki
 
 ## Current Functionality
 - [x] Checks sensor reading every second to find ml/sec passing through sensor
