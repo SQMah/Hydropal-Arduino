@@ -1,7 +1,7 @@
 # Hydropal: Arduino Branch
 
 ## Description
-This is the Arduino code for the Hydropal smart water bottle JA company. The code will primarily allow the Arduino Nano board to read the ml/sec of liquids going though the nozzle of the bottle in order to measure the millitres of water that a person drinks throughout the day.
+This is the Arduino code for the Hydropal smart water bottle JA company. The code will primarily allow the Arduino Pro Mini board to read the ml/sec of liquids going though the nozzle of the bottle in order to measure the millitres of water that a person drinks throughout the day. It also syncs that data to a mobile device.
 
 ## Usage
 Detailed instructions can be found here: https://github.com/Hydropal/Hydropal-Arduino/wiki
