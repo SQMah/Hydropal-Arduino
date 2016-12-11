@@ -5,7 +5,6 @@
 #include <Time.h>
 #include <TimeAlarms.h>
 #include <AltSoftSerial.h>
-#include <LowPower.h>
 
 AltSoftSerial BTSerial;
 
@@ -15,7 +14,7 @@ AltSoftSerial BTSerial;
 bool started = false;
 bool ended = false;
  
-char inData[100]; // creates an 80 character array called "inData"
+char inData[100]; // creates an 100 character array called "inData"
 byte index; //creates a variable type=byte called "index"
 
 // Index 0 is 3 days ago etc. Index 3 is today
