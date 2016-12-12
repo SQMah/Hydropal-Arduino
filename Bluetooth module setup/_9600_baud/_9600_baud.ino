@@ -36,7 +36,7 @@ void setup()
     Serial.println(" ");
  
     BTSerial.begin(9600);  
-    Serial.println("BTserial started at 115200");
+    Serial.println("BTserial started at 9600");
     Serial.println("");
 }
  
