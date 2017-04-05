@@ -137,82 +137,38 @@ void loop ()
     int daysInt = dataString.substring(thirdCommaIndex + 1, fourthCommaIndex).toInt();
     int monthsInt = dataString.substring(fourthCommaIndex + 1, fifthCommaIndex).toInt();
     int yearsInt = dataString.substring(fifthCommaIndex + 1, sixthCommaIndex).toInt();
-    reminderState = dataString.substring(sixthCommaIndex + 1, seventhCommaIndex);
-    reminderMinutes = dataString.substring(seventhCommaIndex + 1, eigthCommaIndex).toInt();
-    wakeHour = dataString.substring(eigthCommaIndex + 1, ninthCommaIndex).toInt();
-    wakeMin = dataString.substring(ninthCommaIndex + 1, tenthCommaIndex).toInt();
-    sleepHour = dataString.substring(tenthCommaIndex + 1, eleventhCommaIndex).toInt();
-    sleepMin = dataString.substring(eleventhCommaIndex + 1, twelfthCommaIndex).toInt();
+    String reminderStateTemp = dataString.substring(sixthCommaIndex + 1, seventhCommaIndex);
+    int reminderMinutesTemp = dataString.substring(seventhCommaIndex + 1, eigthCommaIndex).toInt();
+    int wakeHourTemp = dataString.substring(eigthCommaIndex + 1, ninthCommaIndex).toInt();
+    int wakeMinTemp = dataString.substring(ninthCommaIndex + 1, tenthCommaIndex).toInt();
+    int sleepHourTemp = dataString.substring(tenthCommaIndex + 1, eleventhCommaIndex).toInt();
+    int sleepMinTemp = dataString.substring(eleventhCommaIndex + 1, twelfthCommaIndex).toInt();
     int todayVolume = dataString.substring(twelfthCommaIndex + 1, thirteenthCommaIndex).toInt();
     int yesterdayVolume = dataString.substring(thirteenthCommaIndex + 1, fourteenthCommaIndex).toInt();
     int twoDayVolume = dataString.substring(fourteenthCommaIndex + 1, fifteenthCommaIndex).toInt();
     int threeDayVolume = dataString.substring(fifteenthCommaIndex + 1, sixteenthCommaIndex).toInt();
-    bottleEnabled = dataString.substring(sixteenthCommaIndex + 1);
+    String bottleEnabledTemp = dataString.substring(sixteenthCommaIndex + 1);
 
-    if (needSync == true) {
-      //Run on first sync
-      setTime(hoursInt, minutesInt, secondsInt, daysInt, monthsInt, yearsInt);
-    }
-
-    // Set needSync to false
-    needSync = false;
-
-    // Checks for array shift
-    tmElements_t tm;
-    tm.Hour = 0;
-    tm.Minute = 0;
-    tm.Second = 0;
-    tm.Day = day();
-    tm.Month = month();
-    tm.Year = year() - 1970;
-
-    long beginningOfDay = makeTime(tm);
-    long arduinoTime = now();
-
-    // Set time based on Bluetooth data
-    setTime(hoursInt, minutesInt, secondsInt, daysInt, monthsInt, yearsInt);
-
-    // Check for time differences between phone and Arduino
-    long timeDifference = now() - arduinoTime;
-    long timeDifferencePhone = now() - beginningOfDay;
-
-    if (timeDifference > 0) {
-      // Phone time is ahead of Arduino time
-      if (timeDifferencePhone >= 86400 && timeDifferencePhone < 172800) {
-        // Shift array down by one
-        waterConsumption[0] = waterConsumption[1];
-        waterConsumption[1] = waterConsumption[2];
-        waterConsumption[2] = waterConsumption[3];
-        waterConsumption[3] = 0;
-        arrayShifted = true;
-        Serial.println("Shift once");
-      } else if (timeDifferencePhone >= 172800 && timeDifferencePhone < 259200) {
-        // Shift array down by two
-        waterConsumption[0] = waterConsumption[2];
-        waterConsumption[1] = waterConsumption[3];
-        waterConsumption[2] = 0;
-        waterConsumption[3] = 0;
-        arrayShifted = true;
-        Serial.println("Shift twice");
-      } else if (timeDifferencePhone >= 259200 && timeDifferencePhone < 345600) {
-        // Shift array down by three
-        waterConsumption[0] = waterConsumption[3];
-        waterConsumption[1] = 0;
-        waterConsumption[2] = 0;
-        waterConsumption[3] = 0;
-        arrayShifted = true;
-        Serial.println("Shift thrice");
-      } else if (timeDifferencePhone >= 345600) {
-        // Shift array down by four
-        waterConsumption[0] = 0;
-        waterConsumption[1] = 0;
-        waterConsumption[2] = 0;
-        waterConsumption[3] = 0;
-        arrayShifted = true;
-        Serial.println("Shift four times");
+    if (((hoursInt >= 0)&&(hoursInt <= 23)) && ((minutesInt >= 0)&&(minutesInt <= 59)) && ((secondsInt >= 0)&&(secondsInt <= 59)) && ((daysInt >= 1)&&(daysInt <= 31)) && ((monthsInt >= 1)&&(monthsInt <= 12)) && (yearsInt >= 2017) && ((reminderStateTemp == "ON")||(reminderStateTemp == "OFF")) && (reminderMinutesTemp >= 0) && (wakeHourTemp >= 0) && (wakeMinTemp >= 0) && (sleepHourTemp >=0) && (sleepMinTemp >=0) && (todayVolume >= 0) && (yesterdayVolume >= 0) && (twoDayVolume >= 0) && (threeDayVolume >= 0) && ((bottleEnabledTemp == "ON")||(bottleEnabledTemp == "OFF"))) {
+      
+      // Data received was valid
+      reminderState = reminderStateTemp;
+      reminderMinutes = reminderMinutesTemp;
+      wakeHour = wakeHourTemp;
+      wakeMin = wakeMinTemp;
+      sleepHour = sleepHourTemp;
+      sleepMinTemp = sleepMin;
+      bottleEnabled = bottleEnabledTemp;
+      
+      if (needSync == true) {
+        //Run on first sync
+        setTime(hoursInt, minutesInt, secondsInt, daysInt, monthsInt, yearsInt);
       }
-    } else if (timeDifference < 0) {
-      // Arduino time is ahead of phone
+  
+      // Set needSync to false
+      needSync = false;
+  
+      // Checks for array shift
       tmElements_t tm;
       tm.Hour = 0;
       tm.Minute = 0;
@@ -220,88 +176,149 @@ void loop ()
       tm.Day = day();
       tm.Month = month();
       tm.Year = year() - 1970;
-      long beginningOfDayPhone = makeTime(tm);
-
-      long timeDifferenceArduino = arduinoTime - beginningOfDayPhone;
-
-      // Phone time is ahead of Arduino time
-      if (timeDifferenceArduino >= 86400 && timeDifferenceArduino < 172800) {
-        // Shift array up by one
-        waterConsumption[3] = waterConsumption[2];
-        waterConsumption[2] = waterConsumption[1];
-        waterConsumption[1] = waterConsumption[0];
-        waterConsumption[0] = 0;
-        arrayShifted = true;
-        Serial.println("Shift once up");
-      } else if (timeDifferenceArduino >= 172800 && timeDifferenceArduino < 259200) {
-        // Shift array iup by two
-        waterConsumption[3] = waterConsumption[1];
-        waterConsumption[2] = waterConsumption[0];
-        waterConsumption[1] = 0;
-        waterConsumption[0] = 0;
-        arrayShifted = true;
-        Serial.println("Shift twice up");
-      } else if (timeDifferenceArduino >= 259200 && timeDifferenceArduino < 345600) {
-        // Shift array up by three
-        waterConsumption[3] = waterConsumption[0];
-        waterConsumption[2] = 0;
-        waterConsumption[1] = 0;
-        waterConsumption[0] = 0;
-        arrayShifted = true;
-        Serial.println("Shift thrice up");
-      } else if (timeDifferenceArduino >= 345600) {
-        // Shift array up by four
-        waterConsumption[3] = 0;
-        waterConsumption[2] = 0;
-        waterConsumption[1] = 0;
-        waterConsumption[0] = 0;
-        arrayShifted = true;
-        Serial.println("Shift four times up");
+  
+      long beginningOfDay = makeTime(tm);
+      long arduinoTime = now();
+  
+      // Set time based on Bluetooth data
+      setTime(hoursInt, minutesInt, secondsInt, daysInt, monthsInt, yearsInt);
+  
+      // Check for time differences between phone and Arduino
+      long timeDifference = now() - arduinoTime;
+      long timeDifferencePhone = now() - beginningOfDay;
+  
+      if (timeDifference > 0) {
+        // Phone time is ahead of Arduino time
+        if (timeDifferencePhone >= 86400 && timeDifferencePhone < 172800) {
+          // Shift array down by one
+          waterConsumption[0] = waterConsumption[1];
+          waterConsumption[1] = waterConsumption[2];
+          waterConsumption[2] = waterConsumption[3];
+          waterConsumption[3] = 0;
+          arrayShifted = true;
+          Serial.println("Shift once");
+        } else if (timeDifferencePhone >= 172800 && timeDifferencePhone < 259200) {
+          // Shift array down by two
+          waterConsumption[0] = waterConsumption[2];
+          waterConsumption[1] = waterConsumption[3];
+          waterConsumption[2] = 0;
+          waterConsumption[3] = 0;
+          arrayShifted = true;
+          Serial.println("Shift twice");
+        } else if (timeDifferencePhone >= 259200 && timeDifferencePhone < 345600) {
+          // Shift array down by three
+          waterConsumption[0] = waterConsumption[3];
+          waterConsumption[1] = 0;
+          waterConsumption[2] = 0;
+          waterConsumption[3] = 0;
+          arrayShifted = true;
+          Serial.println("Shift thrice");
+        } else if (timeDifferencePhone >= 345600) {
+          // Shift array down by four
+          waterConsumption[0] = 0;
+          waterConsumption[1] = 0;
+          waterConsumption[2] = 0;
+          waterConsumption[3] = 0;
+          arrayShifted = true;
+          Serial.println("Shift four times");
+        }
+      } else if (timeDifference < 0) {
+        // Arduino time is ahead of phone
+        tmElements_t tm;
+        tm.Hour = 0;
+        tm.Minute = 0;
+        tm.Second = 0;
+        tm.Day = day();
+        tm.Month = month();
+        tm.Year = year() - 1970;
+        long beginningOfDayPhone = makeTime(tm);
+  
+        long timeDifferenceArduino = arduinoTime - beginningOfDayPhone;
+  
+        // Phone time is ahead of Arduino time
+        if (timeDifferenceArduino >= 86400 && timeDifferenceArduino < 172800) {
+          // Shift array up by one
+          waterConsumption[3] = waterConsumption[2];
+          waterConsumption[2] = waterConsumption[1];
+          waterConsumption[1] = waterConsumption[0];
+          waterConsumption[0] = 0;
+          arrayShifted = true;
+          Serial.println("Shift once up");
+        } else if (timeDifferenceArduino >= 172800 && timeDifferenceArduino < 259200) {
+          // Shift array iup by two
+          waterConsumption[3] = waterConsumption[1];
+          waterConsumption[2] = waterConsumption[0];
+          waterConsumption[1] = 0;
+          waterConsumption[0] = 0;
+          arrayShifted = true;
+          Serial.println("Shift twice up");
+        } else if (timeDifferenceArduino >= 259200 && timeDifferenceArduino < 345600) {
+          // Shift array up by three
+          waterConsumption[3] = waterConsumption[0];
+          waterConsumption[2] = 0;
+          waterConsumption[1] = 0;
+          waterConsumption[0] = 0;
+          arrayShifted = true;
+          Serial.println("Shift thrice up");
+        } else if (timeDifferenceArduino >= 345600) {
+          // Shift array up by four
+          waterConsumption[3] = 0;
+          waterConsumption[2] = 0;
+          waterConsumption[1] = 0;
+          waterConsumption[0] = 0;
+          arrayShifted = true;
+          Serial.println("Shift four times up");
+        }
       }
+  
+      // Checks if volume data received from device is larger than the one on the board, if it is so, then the volume on the board is updated
+      if (todayVolume >= waterConsumption[3]) {
+        waterConsumption[3] = todayVolume;
+      }
+  
+      if (yesterdayVolume >= waterConsumption[2]) {
+        waterConsumption[2] = yesterdayVolume;
+      }
+  
+      if (twoDayVolume >= waterConsumption[1]) {
+        waterConsumption[1] = twoDayVolume;
+      }
+  
+      if (threeDayVolume >= waterConsumption[0]) {
+        waterConsumption[0] = threeDayVolume;
+      }
+  
+      // Send packet of water consumption
+      BTSerial.print("<");
+      BTSerial.print(waterConsumption[0]);
+      BTSerial.print(",");
+      BTSerial.print(waterConsumption[1]);
+      BTSerial.print(",");
+      BTSerial.print(waterConsumption[2]);
+      BTSerial.print(",");
+      BTSerial.print(waterConsumption[3]);
+      BTSerial.print(">");
+  
+      // Send packet of water consumption
+      Serial.print("<");
+      Serial.print(waterConsumption[0]);
+      Serial.print(",");
+      Serial.print(waterConsumption[1]);
+      Serial.print(",");
+      Serial.print(waterConsumption[2]);
+      Serial.print(",");
+      Serial.print(waterConsumption[3]);
+      Serial.println(">");
+  
+  
+      // Create the alarms
+      Alarm.alarmRepeat(0, 0, 0, waterReset); // 12:00 am every day, reset total_water consumed
+    } else {
+      // Bad or invalid data received
+      // Do nothing
+
+      Serial.println("Bad data received");
     }
-
-    // Checks if volume data received from device is larger than the one on the board, if it is so, then the volume on the board is updated
-    if (todayVolume >= waterConsumption[3]) {
-      waterConsumption[3] = todayVolume;
-    }
-
-    if (yesterdayVolume >= waterConsumption[2]) {
-      waterConsumption[2] = yesterdayVolume;
-    }
-
-    if (twoDayVolume >= waterConsumption[1]) {
-      waterConsumption[1] = twoDayVolume;
-    }
-
-    if (threeDayVolume >= waterConsumption[0]) {
-      waterConsumption[0] = threeDayVolume;
-    }
-
-    // Send packet of water consumption
-    BTSerial.print("<");
-    BTSerial.print(waterConsumption[0]);
-    BTSerial.print(",");
-    BTSerial.print(waterConsumption[1]);
-    BTSerial.print(",");
-    BTSerial.print(waterConsumption[2]);
-    BTSerial.print(",");
-    BTSerial.print(waterConsumption[3]);
-    BTSerial.print(">");
-
-    // Send packet of water consumption
-    Serial.print("<");
-    Serial.print(waterConsumption[0]);
-    Serial.print(",");
-    Serial.print(waterConsumption[1]);
-    Serial.print(",");
-    Serial.print(waterConsumption[2]);
-    Serial.print(",");
-    Serial.print(waterConsumption[3]);
-    Serial.println(">");
-
-
-    // Create the alarms
-    Alarm.alarmRepeat(0, 0, 0, waterReset); // 12:00 am every day, reset total_water consumed
 
     // Reset for the next packet
     started = false;
