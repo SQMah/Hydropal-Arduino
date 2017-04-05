@@ -12,7 +12,7 @@
 //  Commands to write in order - REMEMBER TO TURN ON CR AND NL IN THE SERIAL MONITOR
 //    AT (reply should be OK)
 //    BT is working at this point
-//  MAKE SURE TO SET SERIAL MONITOR TO 115200 BAUD
+//  MAKE SURE TO SET SERIAL MONITOR TO 38400 BAUD
 
 #include <AltSoftSerial.h>
 AltSoftSerial BTSerial; 
@@ -29,13 +29,13 @@ boolean NL = true;
  
 void setup() 
 {
-    Serial.begin(115200);
+    Serial.begin(38400);
     Serial.print("Sketch:   ");   Serial.println(__FILE__);
     Serial.print("Uploaded: ");   Serial.println(__DATE__);
     Serial.println(" ");
  
-    BTSerial.begin(115200);  
-    Serial.println("BTserial started at 115200");
+    BTSerial.begin(38400);  
+    Serial.println("BTserial started at 38400");
     Serial.println("");
 }
  

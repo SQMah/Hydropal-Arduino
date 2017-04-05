@@ -9,21 +9,29 @@ This is the repository Arduino code for the Hydropal smart water bottle JA compa
 Detailed instructions can be found here: https://github.com/Hydropal/Hydropal-Arduino/wiki
 
 ## Current Functionality
-- [x] Checks sensor reading every second to find ml/sec passing through sensor
-- [x] Adds sensor reading to total ml of liquid consumed throughout the day
-- [x] LED indicators for total volume consumed, for 5 LEDs
-- [x] Reset total counter midnight every day
-- [x] Update correct date and time over Bluetooth
-- [x] Update user preferences over Bluetooth
-- [x] Send multiple day data over Bluetooth
+- [X] Checks sensor reading every second to find ml/sec passing through sensor
+- [X] Adds sensor reading to total ml of liquid consumed throughout the day
+- [X] Reset total counter midnight every day
+- [X] Update correct date and time over Bluetooth
+- [X] Update user preferences over Bluetooth
+- [X] Send multiple day data over Bluetooth
 - [X] Pulsing LED to remind user to sync
 - [X] Blinking LED to remind user to drink
 - [X] Proper sleep wake to control LED
+- [X] Adjusts internal data to reflect time changes and disreprencies (should work in different timezones)
+- [X] Checks if sync data is valid
+
+## Deprecated Functionality
+- [X] LED indicators for total volume consumed, for 5 LEDs (present in Alpha 2.0)
 
 ## To-do
-🎉 Nothing at the moment!
+- [ ] Flow rate calibration
 
-## Changelog:
+## Changelog
+## Release 1.0
+- Checks if time from device mismatches internal clock and shifts volume array backwards and forwards as necessary
+- Checks if data sent from device is corrupted over transmission and should help prevent errors that require a hard reset
+- Change baud rate to 38400 instead of 112000 to lower chances of data corruption during transmission
 
 ## Alpha 6.0
 - Arduino checks for the largest value and sends it back to the device
