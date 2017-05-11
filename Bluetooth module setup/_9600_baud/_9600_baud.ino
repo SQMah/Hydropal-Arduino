@@ -11,7 +11,7 @@
 //    Connect Bluetooth TXD to pin D8
 //  Commands to write in order - REMEMBER TO TURN ON CR AND NL IN THE SERIAL MONITOR
 //    AT (reply should be OK)
-//    AT+NAMEHydropal-XXXX (with XXXX being the serial number)
+//    AT+NAMEHydropalXXXX (with XXXX being the serial number)
 //    AT+BAUD6 (should set baud rate to 38400)
 // MAKE SURE TO SET SERIAL BAUD RATE TO 9600
 
